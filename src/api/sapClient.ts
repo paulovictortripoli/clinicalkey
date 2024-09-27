@@ -19,7 +19,7 @@ export async function sapLoginClient(cpf: string, password: string) {
   console.log('Service s:', servicePassword);
 
   const sapUrl = "https://saphasbc-sl.skyinone.net:50000/b1s/v2/sml.svc/INO_ASSOCIANTES_FROM_LOGINParameters(CPF_IN='88116263404',PASS_IN='DFE0E3B49D849211922CF47D5ECC9533')/INO_ASSOCIANTES_FROM_LOGIN";
-const allOriginsUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(sapUrl)}`;
+const allOriginsUrl = `https://cors-anywhere.herokuapp.com/${encodeURIComponent(sapUrl)}`;
 
 
     const response = await axios.get(
