@@ -1,37 +1,28 @@
-import axios from 'axios';
-import CryptoJS from 'crypto-js'; 
+'use server'
+import axios from 'axios'
+import * as crypto from 'crypto'
 
-export async function sapLoginClient(cpf: string, password: string) {
-  const credentials = `{"CompanyDB": "SBO_SBCPRD",   "UserName": "manager"}`;
-  //const credentials = `{"CompanyDB": "${process.env.REACT_APP_SAP_COMPANY_DB}",   "UserName": "${process.env.REACT_APP_SAP_COMPANY_USERNAME}"}`;
-  const servicePassword = "sap@123"; //process.env.REACT_APP_SAP_COMPANY_PASSWORD!;
-  const serviceLayer = "https://saphasbc-sl.skyinone.net:50000"; //process.env.REACT_APP_SAP_SERVICE_LAYER!;
-  
-  const encodedCredentials = btoa(`${credentials}:${servicePassword}`);
+export async function sapLoginClient (cpf: string, password: string) {
+  const credentials = `{"CompanyDB": "${process.env.NEXT_SAP_COMPANY_DB}",   "UserName": "${process.env.NEXT_SAP_COMPANY_USERNAME}"}`
 
-  
-  const md5Password = CryptoJS.MD5(password).toString().toUpperCase(); // Gera o hash MD5 da senha
-  const cpfNumber = Number(cpf);
+  const servicePassword = process.env.NEXT_SAP_COMPANY_PASSWORD!
+  const serviceLayer = process.env.NEXT_SAP_SERVICE_LAYER!
+
+  const encodedCredentials = btoa(`${credentials}:${servicePassword}`)
+
+  const md5 = crypto.createHash('md5').update(password).digest('hex')
+  const md5Password = md5.toUpperCase()
+  const cpfNumber = Number(cpf)
 
   try {
-    console.log('Service Layer:', serviceLayer);
-    console.log('Service L2:', process.env.REACT_APP_SAP_SERVICE_LAYER!);
-  console.log('Service s:', servicePassword);
-
-  const sapUrl = `${serviceLayer}/b1s/v2/sml.svc/INO_ASSOCIANTES_FROM_LOGINParameters(CPF_IN='${cpfNumber}',PASS_IN='${md5Password}')/INO_ASSOCIANTES_FROM_LOGIN`;
-const allOriginsUrl = `https://cors-anywhere.herokuapp.com/${encodeURIComponent(sapUrl)}`;
-
-
-    const response = await axios.get(
-      allOriginsUrl
-      , {
+    const response = await axios.get(`${serviceLayer}/b1s/v2/sml.svc/INO_ASSOCIANTES_FROM_LOGINParameters(CPF_IN='${cpfNumber}',PASS_IN='${md5Password}')/INO_ASSOCIANTES_FROM_LOGIN`, {
       headers: {
         Authorization: `Basic ${encodedCredentials}`
       }
-    });
+    })
 
-    return response.data; 
+    return response.data
   } catch (error: any) {
-    throw new Error('Erro ao tentar fazer login.'); 
+    return error
   }
 }
